@@ -37,6 +37,7 @@ if (!name && !number) {
 // Complain about missing number
 if (name && !number) {
     console.log(`number missing for ${name}`)
+    process.exit(1)
 }
 
 // Add new person
