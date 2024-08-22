@@ -10,17 +10,17 @@ const name = process.argv[3]
 const number = process.argv[4]
 
 const url =
-  `mongodb+srv://StackMous:${password}@stackmouscluster.naieb.mongodb.net/noteApp?retryWrites=true&w=majority&appName=StackMousCluster`
+  `mongodb+srv://StackMous:${password}@stackmouscluster.naieb.mongodb.net/phoneBook?retryWrites=true&w=majority&appName=StackMousCluster`
 
 mongoose.set('strictQuery', false)
 mongoose.connect(url)
 
-const noteSchema = new mongoose.Schema({
+const personSchema = new mongoose.Schema({
   name: String,
   number: String,
 })
 
-const Person = mongoose.model('Person', noteSchema)
+const Person = mongoose.model('Person', personSchema)
 
 // Print Phonebook
 if (!name && !number) {

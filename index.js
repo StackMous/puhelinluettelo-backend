@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 var morgan = require('morgan')
+const Person = require('./models/person')
 const app = express()
 
 app.use(cors())
@@ -12,45 +14,30 @@ morgan.token('postbody', function (req) {
     if (req.method === "POST") return JSON.stringify(req.body)
 })
 
-let persons = [
-    {
-      "name": "Arto Hellas",
-      "number": "040-123456",
-      "id": 1
-    },
-    {
-      "name": "Ada Lovelace",
-      "number": "39-44-5323523",
-      "id": 2
-    },
-    {
-      "name": "Dan Abramov",
-      "number": "12-43-234345",
-      "id": 3
-    },
-    {
-      "name": "Mary Poppendieck",
-      "number": "39-23-6423122",
-      "id": 4
-    }
-]
+let persons = []
 
 app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
     response.json(persons)
+  })    
 })
 
 app.get('/api/persons/info', (request, response) => {
+  Person.find({}).then(persons => {
     response.send(`<p>Phonebook has info for ${persons.length} people.</p><p>${new Date()}</p>`);
+  })    
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const person = persons.find(person => person.id === id)
-    if (person) {
-      response.json(person)
+  Person.findById(request.params.id).then(person => {
+    if (!person) {
+      console.log('no eipä löytynyt')
+      response.status(404).send({error: 'person not found'})  
     } else {
-      response.status(404).end()
+      console.log('löytyi että pätkähti')
+      response.json(person)
     }
+  })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -81,32 +68,20 @@ app.post('/api/persons', (request, response) => {
           error: 'number missing' 
         })
     }
-    if (persons.some(p => p.name === body.name)){
-        return response.status(400).json({ 
-          error: 'name must be unique' 
-        })
+    if (body.name && body.number) {
+      const person = new Person ({
+        name: body.name,
+        number: body.number,
+      })
+      console.log("Trying to save new person")
+      person.save().then(result => {
+        console.log(`Added ${body.name} number ${body.number} to Phonebook`)
+        response.json(person)
+      })
     }
-  
-    do {
-        newId = generateId()
-        console.log(`new id would be ${newId}`)
-    } while (
-        persons.some(p => p.id === newId)
-    )
-
-    console.log(`found new id ${newId}!`)
-
-    const person = {
-      name: body.name,
-      number: body.number,
-      id: newId,
-    }
-    persons = persons.concat(person)
-  
-    response.json(person)
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
