@@ -11,20 +11,20 @@ app.use(cors())
 app.use(express.static('dist'))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postbody'))
 
-morgan.token('postbody', function (req) { 
-    if (req.method === "POST") return JSON.stringify(req.body)
+morgan.token('postbody', function (req) {
+  if (req.method === 'POST') return JSON.stringify(req.body)
 })
 
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
     response.json(persons)
-  })    
+  })
 })
 
 app.get('/api/persons/info', (request, response) => {
   Person.find({}).then(persons => {
-    response.send(`<p>Phonebook has info for ${persons.length} people.</p><p>${new Date()}</p>`);
-  })    
+    response.send(`<p>Phonebook has info for ${persons.length} people.</p><p>${new Date()}</p>`)
+  })
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -34,47 +34,48 @@ app.get('/api/persons/:id', (request, response, next) => {
       response.json(person)
     } else {
       console.log('no eipä löytynyt')
-      response.status(404).send({error: 'person not found'})  
+      response.status(404).send({ error: 'person not found' })
     }
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
     .then(result => {
+      console.log(`Delete result: ${result}`)
       response.status(204).end()
     })
     .catch((error) => next(error))
 })
 
 app.post('/api/persons', (request, response, next) => {
-    app.use(morgan(':method :url :body'))
-    const body = request.body
-  
-    if (!body.name) {
-      return response.status(400).json({ 
-        error: 'name missing' 
-      })
-    }
-    if (!body.number) {
-        return response.status(400).json({ 
-          error: 'number missing' 
-        })
-    }
-    if (body.name && body.number) {
-      const person = new Person ({
-        name: body.name,
-        number: body.number,
-      })
-      console.log("Trying to save new person")
-      person.save()
+  app.use(morgan(':method :url :body'))
+  const body = request.body
+
+  if (!body.name) {
+    return response.status(400).json({
+      error: 'name missing'
+    })
+  }
+  if (!body.number) {
+    return response.status(400).json({
+      error: 'number missing'
+    })
+  }
+  if (body.name && body.number) {
+    const person = new Person ({
+      name: body.name,
+      number: body.number,
+    })
+    console.log('Trying to save new person')
+    person.save()
       .then(result => {
-        console.log(`Added ${body.name} number ${body.number} to Phonebook`)
+        console.log(`Added ${result.name} number ${result.number} to Phonebook`)
         response.json(person)
       })
       .catch(error => next(error))
-    }
+  }
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -110,5 +111,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })

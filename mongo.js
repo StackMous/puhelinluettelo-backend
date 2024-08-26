@@ -24,32 +24,33 @@ const Person = mongoose.model('Person', personSchema)
 
 // Print Phonebook
 if (!name && !number) {
-    console.log("Phonebook")
+  console.log('Phonebook')
 
-    Person.find({}).then(result => {
-        result.forEach(person => {
-          console.log(`${person.name} ${person.number}`)
-        })
-        mongoose.connection.close()
+  Person.find({}).then(result => {
+    result.forEach(person => {
+      console.log(`${person.name} ${person.number}`)
+    })
+    mongoose.connection.close()
   })
 }
 
 // Complain about missing number
 if (name && !number) {
-    console.log(`number missing for ${name}`)
-    process.exit(1)
+  console.log(`number missing for ${name}`)
+  process.exit(1)
 }
 
 // Add new person
 if (name && number) {
-    const person = new Person({
-        name: name,
-        number: number,
-    })
-    console.log("Trying to save new person")
-    person.save().then(result => {
-      console.log(`Added ${name} number ${number} to Phonebook`)
-      mongoose.connection.close()
-    })
+  const person = new Person({
+    name: name,
+    number: number,
+  })
+  console.log('Trying to save new person')
+  person.save().then(result => {
+    console.log(`Added ${name} number ${number} to Phonebook`)
+    console.log(`${result}`)
+    mongoose.connection.close()
+  })
 }
 
